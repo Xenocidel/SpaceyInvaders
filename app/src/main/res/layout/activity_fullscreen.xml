@@ -37,12 +37,13 @@
             tools:ignore="UselessParent">
 
             <Button
-                android:id="@+id/dummy_button"
+                android:id="@+id/play_button"
                 style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_weight="1"
                 android:text="@string/play"
+                android:onClick="startGame"
                 android:textSize="@dimen/abc_text_size_large_material" />
 
         </LinearLayout>

@@ -86,33 +86,6 @@ public class InGame extends AppCompatActivity {
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_in_game);
-
-        mVisible = true;
-        mControlsView = findViewById(R.id.moveButtons);
-        mContentView = findViewById(R.id.gameScreen);
-
-
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.left).setOnTouchListener(mDelayHideTouchListener);
-        findViewById(R.id.right).setOnTouchListener(mDelayHideTouchListener);
-
-    }
-
-    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
@@ -147,8 +120,8 @@ public class InGame extends AppCompatActivity {
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        //mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        //        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
         // Schedule a runnable to display UI elements after a delay
@@ -164,4 +137,36 @@ public class InGame extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+    /* game logic start */
+
+    int gameState = 1; // 0 if exit, 1 if running, 2 if pause
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_in_game);
+
+        mVisible = true;
+        mControlsView = findViewById(R.id.moveButtons);
+        mContentView = findViewById(R.id.gameScreen);
+
+
+        while (gameState == 1) {
+            //run the game
+        }
+        // Upon interacting with UI controls, delay any scheduled hide()
+        // operations to prevent the jarring behavior of controls going away
+        // while interacting with the UI.
+        findViewById(R.id.left).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.right).setOnTouchListener(mDelayHideTouchListener);
+
+    }
+
+    @Override
+
+
+
 }
