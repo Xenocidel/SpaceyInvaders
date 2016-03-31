@@ -1,18 +1,30 @@
 package xc.spaceyinvaders;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ActionMenuView;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import xc.spaceyinvaders.R;
@@ -32,22 +44,26 @@ public class InGame extends AppCompatActivity {
 
         inGame = true;
 
-        //Layout consists of game on top and left/right buttons on bottom
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        //Layout consists of 7% saucer, 70% gameScreen, 8% ship, 15% controls
         LinearLayout ui = new LinearLayout(this);
         ui.setOrientation(LinearLayout.VERTICAL);
         ui.setBackgroundColor(Color.BLACK);
 
-        LinearLayout controls = new LinearLayout(this);
-        controls.setOrientation(LinearLayout.HORIZONTAL);
-        controls.setBackgroundColor(Color.DKGRAY);
-
-        //Game Screen
-        SurfaceView gameScreen = new SurfaceView(this);
         LinearLayout.LayoutParams gameParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 3
-        ); //weighted 3/4 ratio of game screen to left/right buttons below
-        gameScreen.setBackgroundResource(R.drawable.space);
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (int)(metrics.heightPixels*0.7)
+        );
+
+        //saucer
+        Ship saucer = new Ship(this, 6, -100, R.drawable.ship);
+        //saucer.setImageResource(R.drawable.ship);
+
+        //gameScreen
+        SurfaceView gameScreen = new SurfaceView(this);
+        gameScreen.setBackgroundResource(R.drawable.spacey);
 
         /* onTouchListener is more versatile and has more functions than onClickListener */
         gameScreen.setOnTouchListener(new View.OnTouchListener() {
@@ -58,15 +74,29 @@ public class InGame extends AppCompatActivity {
                     Log.i("button", "shoot");
                     return true;
                 }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    //ship.shootStop();
+                    Log.i("button", "shootStop");
+                    return true;
+                }
                 return false;
             }
         });
 
+        //Ship
+        Ship ship = new Ship(this, 3, metrics.widthPixels/2, R.drawable.ship);
+        //aspect ratio of ship image is 0.75916:1
+        LinearLayout.LayoutParams shipParams = new LinearLayout.LayoutParams(
+                (int)(metrics.heightPixels*0.09*0.75916),
+                (int)(metrics.heightPixels*0.09)
+        );
+        ship.setImageResource(R.drawable.ship);
+
         //Left button
         Button leftButton = new Button(this);
         LinearLayout.LayoutParams leftParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 1
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT, 1
         );
         leftButton.setBackgroundResource(R.drawable.leftbutton);
         leftButton.setOnTouchListener(new View.OnTouchListener() {
@@ -77,6 +107,11 @@ public class InGame extends AppCompatActivity {
                     Log.i("button", "left");
                     return true;
                 }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    //ship.moveLeftStop();
+                    Log.i("button", "leftStop");
+                    return true;
+                }
                 return false;
             }
         });
@@ -85,8 +120,8 @@ public class InGame extends AppCompatActivity {
         //Right button
         Button rightButton = new Button(this);
         LinearLayout.LayoutParams rightParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 1
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT, 1
         );
         rightButton.setBackgroundResource(R.drawable.rightbutton);
         rightButton.setOnTouchListener(new View.OnTouchListener() {
@@ -97,17 +132,32 @@ public class InGame extends AppCompatActivity {
                     Log.i("button", "right");
                     return true;
                 }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    //ship.moveRightStop();
+                    Log.i("button", "rightStop");
+                    return true;
+                }
                 return false;
             }
         });
 
+        //controls is a nested LinearLayout for the 2 side-by-side buttons
+        LinearLayout controls = new LinearLayout(this);
+        controls.setOrientation(LinearLayout.HORIZONTAL);
+        controls.setBackgroundColor(Color.DKGRAY);
+
+        LinearLayout.LayoutParams controlsParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (int)(metrics.heightPixels*0.15)
+        );
 
         //Place Views on Layout
-        //controls are in a LinearLayout, which is nested in the UI's LinearLayout
+        ui.addView(saucer, shipParams);
         ui.addView(gameScreen, gameParams);
-        ui.addView(controls, leftParams);
+        ui.addView(ship, shipParams);
         controls.addView(leftButton, leftParams);
         controls.addView(rightButton, rightParams);
+        ui.addView(controls, controlsParams);
 
         //Draw
         setContentView(ui);
@@ -193,4 +243,25 @@ public class InGame extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        //keyboard input left
+        if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_W) {
+            //ship.moveLeftStop();
+            return true;
+        }
+
+        //keyboard input right
+        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_D) {
+            //ship.moveRightStop();
+            return true;
+        }
+
+        //keyboard input shoot
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            //ship.shootStop();
+            return true;
+        }
+        return false;
+    }
 }
