@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".game.InGame"
+            android:name=".InGame"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_in_game"
             android:theme="@style/FullscreenTheme"></activity>
