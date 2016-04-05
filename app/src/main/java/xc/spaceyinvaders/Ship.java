@@ -30,27 +30,23 @@ public class Ship extends ImageView {
     }
 
     //Start of Ship implementation
-    int speed;
-    int resId; //resource ID to draw
+    float speed;
     float pos;
 
-    public Ship(Context context, int speed, int resId) {
-        super(context);
+    public void setSpeed(float speed){
         this.speed = speed;
-        this.resId = resId;
-        this.pos = getX();
     }
 
     public void moveLeft(){
-        pos-=3;
+        pos-=speed;
     }
 
     public void moveRight(){
-        pos+=3;
+        pos+=speed;
     }
 
     public void shoot(){
-        
+
     }
 
 }

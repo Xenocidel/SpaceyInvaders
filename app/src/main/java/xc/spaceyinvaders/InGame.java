@@ -29,26 +29,22 @@ public class InGame extends AppCompatActivity {
 
         inGame = true;
 
-        //Layout consists of 0.1 ufo, 0.8 gameScreen, 0.1 ship, 0.2 controls (sum = 1.1)
+        //Layout consists of 0.1 ufo, 0.9 gameScreen, 0.2 controls (sum = 1.1)
         setContentView(R.layout.activity_ingame);
-        final ImageView ufo = (ImageView)findViewById(R.id.ufo);
-        final ImageView gameScreen = (ImageView)findViewById(R.id.gameScreen);
-        final Ship ship = (Ship)findViewById(R.id.ship);
+        final Ship ufo = (Ship)findViewById(R.id.ufo);
+        final SpaceView gameScreen = (SpaceView)findViewById(R.id.gameScreen);
         final ImageButton leftButton = (ImageButton)findViewById(R.id.leftButton);
         final ImageButton rightButton = (ImageButton)findViewById(R.id.rightButton);
+
+        //arbitrary speeds
+        ufo.setSpeed(9);
+        //ship.setSpeed(3);
 
         //Upon tapping the ship or gameScreen, call shoot
         gameScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ship.shoot();
-                Log.i("button", "shoot");
-            }
-        });
-        ship.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ship.shoot();
+                //ship.shoot();
                 Log.i("button", "shoot");
             }
         });
@@ -58,9 +54,8 @@ public class InGame extends AppCompatActivity {
         leftButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                ship.moveLeft();
-                ship.setX(ship.pos);
-                Log.i("button", Float.toString(ship.pos));
+                //ship.moveLeft();
+                //Log.i("button", Float.toString(ship.pos));
                 return true;
             }
         });
@@ -70,9 +65,8 @@ public class InGame extends AppCompatActivity {
         rightButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                ship.moveRight();
-                ship.setX(ship.pos);
-                Log.i("button", Float.toString(ship.pos));
+                //ship.moveRight();
+                //Log.i("button", Float.toString(ship.pos));
                 return true;
             }
         });

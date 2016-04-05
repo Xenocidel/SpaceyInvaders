@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:background="#000000">
 
-    <ImageView
+    <xc.spaceyinvaders.Ship
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
@@ -14,25 +14,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.8">
-        <ImageView
+        android:layout_weight="0.9">
+        <xc.spaceyinvaders.SpaceView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/gameScreen"
             android:layout_centerHorizontal="true"
             android:src="@drawable/space"/>
     </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.1">
-        <xc.spaceyinvaders.Ship
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/ship"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/ship"/>
-    </RelativeLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
