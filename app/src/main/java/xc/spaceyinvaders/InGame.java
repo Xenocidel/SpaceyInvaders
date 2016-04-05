@@ -41,14 +41,14 @@ public class InGame extends AppCompatActivity {
         gameScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //ship.shoot();
+                ship.shoot();
                 Log.i("button", "shoot");
             }
         });
         ship.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //ship.shoot();
+                ship.shoot();
                 Log.i("button", "shoot");
             }
         });
@@ -58,17 +58,10 @@ public class InGame extends AppCompatActivity {
         leftButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    //ship.moveLeft();
-                    Log.i("button", "left");
-                    return true;
-                }
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    //ship.moveLeftStop();
-                    Log.i("button", "leftStop");
-                    return true;
-                }
-                return false;
+                ship.moveLeft();
+                ship.setX(ship.pos);
+                Log.i("button", Float.toString(ship.pos));
+                return true;
             }
         });
 
@@ -77,17 +70,10 @@ public class InGame extends AppCompatActivity {
         rightButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    //ship.moveRight();
-                    Log.i("button", "right");
-                    return true;
-                }
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    //ship.moveRightStop();
-                    Log.i("button", "rightStop");
-                    return true;
-                }
-                return false;
+                ship.moveRight();
+                ship.setX(ship.pos);
+                Log.i("button", Float.toString(ship.pos));
+                return true;
             }
         });
 
