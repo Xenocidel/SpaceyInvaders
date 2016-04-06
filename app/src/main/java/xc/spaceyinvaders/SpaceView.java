@@ -1,5 +1,6 @@
 package xc.spaceyinvaders;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -31,6 +33,8 @@ import android.view.WindowManager;
  * Created by Jimmy on 2016/4/5.
  */
 public class SpaceView extends SurfaceView implements Runnable{
+
+
 
     Thread gameThread = null;
 
@@ -59,6 +63,19 @@ public class SpaceView extends SurfaceView implements Runnable{
 
 
 
+    public SpaceView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        paint = new Paint();
+        bitmapShip = BitmapFactory.decodeResource(getResources(), R.drawable.ship);
+        screenX = getHeight();
+        screenY = getWidth();
+
+
+        //bitmapShip.setHeight(1/10 * screenY);
+        //bitmapShip.setWidth(1 / 10 * screenY);
+    }
+
     //constructor
     public SpaceView(Context context){
         super(context);
@@ -68,10 +85,9 @@ public class SpaceView extends SurfaceView implements Runnable{
         screenX = getHeight();
         screenY = getWidth();
 
-        bitmapShip.setHeight(1/10 * screenY);
-        bitmapShip.setWidth(1/10 * screenY);
 
-
+        //bitmapShip.setHeight(1/10 * screenY);
+        //bitmapShip.setWidth(1/10 * screenY);
 
     }
 

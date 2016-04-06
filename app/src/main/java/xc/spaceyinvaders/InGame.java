@@ -17,6 +17,7 @@ import xc.spaceyinvaders.R;
 public class InGame extends AppCompatActivity {
 
     boolean inGame;
+    SpaceView spaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,49 +28,8 @@ public class InGame extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        inGame = true;
-
-        //Layout consists of 0.1 ufo, 0.9 gameScreen, 0.2 controls (sum = 1.1)
-        setContentView(R.layout.activity_ingame);
-        final Ship ufo = (Ship)findViewById(R.id.ufo);
-        final SpaceView gameScreen = (SpaceView)findViewById(R.id.gameScreen);
-        final ImageButton leftButton = (ImageButton)findViewById(R.id.leftButton);
-        final ImageButton rightButton = (ImageButton)findViewById(R.id.rightButton);
-
-        //arbitrary speeds
-        ufo.setSpeed(9);
-        //ship.setSpeed(3);
-
-        //Upon tapping the ship or gameScreen, call shoot
-        gameScreen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ship.shoot();
-                Log.i("button", "shoot");
-            }
-        });
-
-        //Controls will use onTouchListener for hold functionality
-        //Left button
-        leftButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //ship.moveLeft();
-                //Log.i("button", Float.toString(ship.pos));
-                return true;
-            }
-        });
-
-
-        //Right button
-        rightButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //ship.moveRight();
-                //Log.i("button", Float.toString(ship.pos));
-                return true;
-            }
-        });
+        spaceView = new SpaceView(this);
+        setContentView(spaceView);
 
     }
 

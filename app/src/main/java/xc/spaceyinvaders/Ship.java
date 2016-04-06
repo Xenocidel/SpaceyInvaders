@@ -1,70 +1,51 @@
 package xc.spaceyinvaders;
 
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.ImageView;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
-/**
- * Created by Aaron on 2016-03-31.
- */
-public class Ship extends ImageView {
+public class Ship {
 
-    /* Constructors needed by ImageView */
-    public Ship(Context context) {
-        super(context);
+    private int shipSpeed;
+
+    public final int STOPPED = 0;
+    public final int LEFT = 1;
+    public final int RIGHT = 2;
+
+    private int shipPosition;
+
+
+    private int shipMovingState = STOPPED;
+
+    //constructor of Ship
+    public Ship(int screenX){
+
+        shipPosition = screenX / 2;
+
+        shipSpeed = 500;
     }
 
-    public Ship(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public void setState(int state){
+        shipMovingState = state;
     }
 
-    public Ship(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    public void update(long fps, int screenX){
+        if(shipMovingState == LEFT){
+            shipPosition -= shipSpeed /fps;
+            if(shipPosition < 0){
+                shipPosition = 0;
+            }
+        }
+
+        if(shipMovingState == RIGHT){
+            shipPosition += shipSpeed / fps;
+            if(shipPosition > screenX){
+                shipPosition = screenX;
+            }
+        }
     }
 
-    @TargetApi(21)
-    public Ship(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+    public int getPosition(){
+        return  shipPosition;
     }
-
-    //Start of Ship implementation
-    float speed;
-    float posX;
-    float posY;
-
-    public Ship(Context context, int screenHeight, int screenWidth, int type){
-        super(context);
-
-    }
-
-    public void setSpeed(float speed){
-        this.speed = speed;
-    }
-
-    public void moveLeft(){
-        posX-=speed;
-    }
-
-    public void moveRight(){
-        posX+=speed;
-    }
-
-    public void moveDown(){
-        posY-=speed;
-    }
-    public void shoot(){
-
-    }
-
-    public float getPosX(){
-        return posX;
-    }
-
-    public float getPosY(){
-        return posY;
-    }
-
-    
 }
