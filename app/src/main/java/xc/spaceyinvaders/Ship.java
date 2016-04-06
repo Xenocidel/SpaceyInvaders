@@ -31,22 +31,39 @@ public class Ship extends ImageView {
 
     //Start of Ship implementation
     float speed;
-    float pos;
+    float posX;
+    float posY;
+
+    public Ship(Context context, int screenHeight, int screenWidth, int type){
+        super(context);
+        
+    }
 
     public void setSpeed(float speed){
         this.speed = speed;
     }
 
     public void moveLeft(){
-        pos-=speed;
+        posX-=speed;
     }
 
     public void moveRight(){
-        pos+=speed;
+        posX+=speed;
     }
 
+    public void moveDown(){
+        posY-=speed;
+    }
     public void shoot(){
 
+    }
+
+    public float getPosX(){
+        return posX;
+    }
+
+    public float getPosY(){
+        return posY;
     }
 
 }
