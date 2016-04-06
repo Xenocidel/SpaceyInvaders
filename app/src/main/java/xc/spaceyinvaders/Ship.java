@@ -36,7 +36,7 @@ public class Ship extends ImageView {
 
     public Ship(Context context, int screenHeight, int screenWidth, int type){
         super(context);
-        
+
     }
 
     public void setSpeed(float speed){
@@ -66,4 +66,5 @@ public class Ship extends ImageView {
         return posY;
     }
 
+    
 }
