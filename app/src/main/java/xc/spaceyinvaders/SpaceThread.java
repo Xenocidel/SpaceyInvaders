@@ -13,9 +13,9 @@ public class SpaceThread extends Thread {
     }
     public void run() {
         SurfaceHolder sh = sv.getHolder();
-// Main game loop.
+        // Main game loop.
         while( !Thread.interrupted() ) {
-//You might want to do game specific processing in a method you call here
+        //You might want to do game specific processing in a method you call here
             Canvas c = sh.lockCanvas(null);
             try {
                 synchronized(sh) {
@@ -27,11 +27,11 @@ public class SpaceThread extends Thread {
                     sh.unlockCanvasAndPost(c);
                 }
             }
-// Set the frame rate by setting this delay
+            // Set the frame rate by setting this delay
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-// Thread was interrupted while sleeping.
+                // Thread was interrupted while sleeping.
                 return;
             }
         }

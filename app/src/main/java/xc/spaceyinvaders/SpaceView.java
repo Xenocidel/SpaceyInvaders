@@ -28,166 +28,95 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 /**
  * Created by Jimmy on 2016/4/5.
  */
-public class SpaceView extends SurfaceView implements Runnable{
+public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
 
 
+    public SpaceView(Context context) { super(context) ;
+        this.context = context;
+        getHolder (). addCallback(this);
+        setFocusable(true);
+    }
 
-    Thread gameThread = null;
-
-    SurfaceHolder sh;
-
-    // check if the the game is playing, this variable's value will be modified by different thread
-    volatile boolean inGame;
-
-    //game is paused when start
+    Context context;
+    Ship s;
+    ImageView leftArrow;
+    ImageView rightArrow;
+    SpaceThread st ;
     boolean paused = true;
-
-    Canvas canvas;
-    Paint paint;
-
-    long fps;
-
-    //screen size
-    int screenX, screenY;
-
-
-    //ship class declaration
-    Ship ship;
-
-    //ship
-    Bitmap bitmapShip;
-
-
-
-    public SpaceView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        paint = new Paint();
-        bitmapShip = BitmapFactory.decodeResource(getResources(), R.drawable.ship);
-        screenX = getHeight();
-        screenY = getWidth();
-
-
-        //bitmapShip.setHeight(1/10 * screenY);
-        //bitmapShip.setWidth(1 / 10 * screenY);
-    }
-
-    //constructor
-    public SpaceView(Context context){
-        super(context);
-
-        paint = new Paint();
-        bitmapShip = BitmapFactory.decodeResource(getResources(), R.drawable.ship);
-        screenX = getHeight();
-        screenY = getWidth();
-
-
-        //bitmapShip.setHeight(1/10 * screenY);
-        //bitmapShip.setWidth(1/10 * screenY);
-
-    }
-
-
-
     @Override
-    public void run() {
-        sh = this.getHolder();
-        while(inGame){
+    public void surfaceCreated ( SurfaceHolder holder ) {
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        Log.d("Log.debug", "ACTION_DOWN at X="+Float.toString(event.getX())+", Y="+Float.toString(event.getY()));
+                        paused = false;
+                        if (event.getY() < getHeight()*3/4) {
+                            if (event.getX() > getWidth() / 2) {
+                                s.setMovementState(s.RIGHT);
+                            } else {
+                                s.setMovementState(s.LEFT);
+                            }
+                        }
+                        return true;
 
-            long startFrameTime = System.currentTimeMillis();
-
-            if(!paused){
-                update();}
-
-            draw();
-
-            long actionTime = System.currentTimeMillis() - startFrameTime;
-            if(actionTime > 0){
-                fps = 1000 / actionTime;
-            }
-        }
-
-    }
-
-    public void update(){
-        ship.update(fps, screenX);
-    }
-
-    public void draw(){
-
-        if(sh.getSurface().isValid()){
-
-            //lock canvas
-            canvas = sh.lockCanvas();
-
-            //draw background
-            canvas.drawColor(Color.BLACK);
-
-            paint.setColor(Color.BLACK);
-
-
-            //draw ship
-            canvas.drawBitmap(bitmapShip, ship.getPosition(), screenY / 2, paint);
-
-            //draw bullet
-
-            //draw spacey(enemy)
-
-
-            //unlock canvas and show up
-            sh.unlockCanvasAndPost(canvas);
-        }
-
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        switch(event.getAction()){
-
-            case MotionEvent.ACTION_DOWN:
-                paused = false;
-
-                if(event.getX() > screenX / 2){
-                    ship.setState(ship.RIGHT);
-                }else{
-                    ship.setState(ship.LEFT);
+                    case MotionEvent.ACTION_UP:
+                        paused = true;
+                        s.setMovementState(s.STOPPED);
+                        Log.d("Log.debug", "ACTION_UP");
+                        return true;
                 }
+                return false;
+            }
+        });
+        // Launch animator thread .
+        s=new Ship(this.context,getWidth(), getHeight());
+        leftArrow = new ImageView(this.context);
+        leftArrow.setImageResource(R.drawable.leftbutton);
+        leftArrow.setAlpha(0.2f);
+        leftArrow.setAdjustViewBounds(true);
+        leftArrow.setMaxWidth(getWidth() / 2);
+        leftArrow.setMaxHeight(getHeight() / 4);
+        leftArrow.setX(0);
+        leftArrow.setY(getHeight() - getHeight() / 4);
+        leftArrow.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-                break;
+        rightArrow = new ImageView(this.context);
+        rightArrow.setImageResource(R.drawable.rightbutton);
+        rightArrow.setAlpha(0.2f);
+        rightArrow.setAdjustViewBounds(true);
+        rightArrow.setMaxWidth(getWidth() / 2);
+        rightArrow.setMaxHeight(getHeight() / 4);
+        rightArrow.setX(getWidth()/2);
+        rightArrow.setY(getHeight() - getHeight() / 4);
+        rightArrow.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-            case MotionEvent.ACTION_UP:
-                paused = true;
-
-                ship.setState(ship.STOPPED);
-
-                break;
-
-        }
-
-        return true;
+        st = new SpaceThread(this);
+        st.start();
     }
 
-    public void pause(){
+    @Override
+    public void draw(Canvas c) {
+        super.draw(c);
+        c.drawColor(Color.BLACK);
+        //Draw the circle
+        s.draw(c);
+        s.update();
 
-        inGame = false;
-
-        try{
-            gameThread.join();
-        }catch(InterruptedException e){
-
-        }
     }
 
-    public void resume(){
-
-        inGame = true;
-        gameThread = new Thread(this);
-        gameThread.start();
-
+    @Override
+    public void surfaceChanged ( SurfaceHolder holder,
+                                 int format , int width , int height ) { // Respond to surface changes , e.g. ,
+    }
+    @Override
+    public void surfaceDestroyed ( SurfaceHolder holder ) {
+        // The cleanest way to stop a thread is by interrupting it. // SpaceThread regularly checks its interrupt flag. st.interrupt();
     }
 }
