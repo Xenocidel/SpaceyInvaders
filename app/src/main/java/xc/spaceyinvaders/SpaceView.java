@@ -47,36 +47,73 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     ImageView leftArrow;
     ImageView rightArrow;
     SpaceThread st ;
-    boolean paused = true;
     @Override
     public void surfaceCreated ( SurfaceHolder holder ) {
+        //ship movement
         setOnTouchListener(new OnTouchListener() {
+            int lastAction = -1;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        Log.d("Log.debug", "ACTION_DOWN at X="+Float.toString(event.getX())+", Y="+Float.toString(event.getY()));
-                        paused = false;
-                        if (event.getY() < getHeight()*3/4) {
-                            if (event.getX() > getWidth() / 2) {
-                                s.setMovementState(s.RIGHT);
-                            } else {
-                                s.setMovementState(s.LEFT);
-                            }
+                switch(event.getActionIndex()) {
+                    case 0:
+                        switch (event.getActionMasked()) {
+                            case MotionEvent.ACTION_DOWN:
+                                Log.d("Log.debug", "ACTION_DOWN at X=" + Float.toString(event.getX()) + ", Y=" + Float.toString(event.getY()));
+                                if (event.getY() > getHeight() * 3 / 4) {
+                                    if (event.getX() > getWidth() / 2) {
+                                        s.setMovementState(s.RIGHT);
+                                        lastAction = 0;
+                                    } else {
+                                        s.setMovementState(s.LEFT);
+                                        lastAction = 1;
+                                    }
+                                }
+                                break;
+                            case MotionEvent.ACTION_UP:
+                                s.setMovementState(s.STOPPED);
+                                lastAction = -1;
+                                break;
+                            case MotionEvent.ACTION_POINTER_UP: //two buttons pressed, first one released
+                                Log.d("Log.debug", "First button released");
+                                if (event.getX(1) > getWidth() /2){
+                                    s.setMovementState(s.RIGHT);
+                                }
+                                else if (event.getX(1) < getWidth() /2){
+                                    s.setMovementState(s.LEFT);
+                                }
+                                break;
                         }
                         return true;
-
-                    case MotionEvent.ACTION_UP:
-                        paused = true;
-                        s.setMovementState(s.STOPPED);
-                        Log.d("Log.debug", "ACTION_UP");
+                    case 1: //for handling two-touch events
+                        switch(event.getActionMasked()) {
+                            case MotionEvent.ACTION_POINTER_DOWN:
+                                Log.d("Log.debug", "ACTION_POINTER_DOWN at X= "+Float.toString(event.getX(1)));
+                                if (event.getY(1) > getHeight() * 3 / 4) {
+                                    if (event.getX(1) < getWidth() / 2 && s.getMovementState() == s.RIGHT) { //cancel right movement
+                                        s.setMovementState(s.STOPPED);
+                                    } else if (event.getX(1) > getWidth() / 2 && s.getMovementState() == s.LEFT) { //cancel left movement
+                                        s.setMovementState(s.STOPPED);
+                                    }
+                                }
+                                break;
+                            case MotionEvent.ACTION_POINTER_UP:
+                                switch(lastAction){
+                                    case 0:
+                                        s.setMovementState(s.RIGHT);
+                                        break;
+                                    case 1:
+                                        s.setMovementState(s.LEFT);
+                                }
+                                break;
+                        }
                         return true;
                 }
                 return false;
             }
         });
-        // Launch animator thread .
         s=new Ship(this.context,getWidth(), getHeight());
+
+        //todo images not showing, not a high priority
         leftArrow = new ImageView(this.context);
         leftArrow.setImageResource(R.drawable.leftbutton);
         leftArrow.setAlpha(0.2f);
@@ -97,6 +134,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         rightArrow.setY(getHeight() - getHeight() / 4);
         rightArrow.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
+        // Launch animator thread
         st = new SpaceThread(this);
         st.start();
     }
@@ -105,10 +143,10 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     public void draw(Canvas c) {
         super.draw(c);
         c.drawColor(Color.BLACK);
-        //Draw the circle
         s.draw(c);
         s.update();
-
+        rightArrow.draw(c);
+        leftArrow.draw(c);
     }
 
     @Override

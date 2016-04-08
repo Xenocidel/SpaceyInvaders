@@ -11,8 +11,11 @@ import android.util.Log;
 
 public class Ship {
 
-    int width;
-    int height;
+    int width; //screenWidth
+    int height; //screenHeight
+    int shipWidth;
+    int shipHeight;
+    int margin; //ship will be within the margin on left, right, and bottom
     float x,y;
     float vx; // speed of ship in x direction
     Bitmap bitmapShip;
@@ -25,14 +28,14 @@ public class Ship {
 
 
     public Ship(Context context, int width, int height) {
-        Bitmap originalBitmap =
-                BitmapFactory.decodeResource(context.getResources(), R.drawable.ship);
-        Bitmap resizedBitmap =
-                Bitmap.createScaledBitmap(originalBitmap, width/6, height/8, false);
-        bitmapShip = resizedBitmap;
-        x= width / 2 - width/12; //bottom center of screen
-        y= height - height/8;
-        vx=40;
+        Bitmap tmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.ship);
+        shipWidth = width/6;
+        shipHeight = height/8;
+        bitmapShip = Bitmap.createScaledBitmap(tmp, shipWidth, shipHeight, false);
+        margin = shipWidth/2;
+        x= width / 2 - shipWidth/2; //bottom center of screen
+        y= height - shipHeight - margin;
+        vx=8;
         this.width=width;
         this.height=height;
         Log.d("Log.DEBUG", "width=" + width + " height=" + height);
@@ -48,21 +51,25 @@ public class Ship {
     void update() {
         if(shipMoving == LEFT) {
             x = x - vx;
-            if (x <= 0 ) {
-                x = 0;
+            if (x <= margin ) {
+                x = margin;
             }
         }
 
         if(shipMoving == RIGHT){
             x = x + vx;
-            if (x >= (width-200)) {
-                x = width - 200;
+            if (x >= (width-shipWidth-margin)) {
+                x = width - shipWidth-margin;
             }
         }
     }
 
     public void setMovementState(int state){
         shipMoving = state;
+    }
+
+    public int getMovementState(){
+        return shipMoving;
     }
 
     public float getX(){
