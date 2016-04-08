@@ -44,6 +44,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
 
     Context context;
     Ship s;
+    Bullet b;
     ImageView leftArrow;
     ImageView rightArrow;
     SpaceThread st ;
@@ -112,6 +113,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
             }
         });
         s=new Ship(this.context,getWidth(), getHeight());
+        b = new Bullet(this.context, getWidth(), getHeight(), s.getX(), s.getY());
 
         //todo images not showing, not a high priority
         leftArrow = new ImageView(this.context);
@@ -145,6 +147,8 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         c.drawColor(Color.BLACK);
         s.draw(c);
         s.update();
+        b.draw(c);
+        b.update(s.getX());
         rightArrow.draw(c);
         leftArrow.draw(c);
     }

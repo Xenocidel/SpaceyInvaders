@@ -33,11 +33,11 @@ public class Ship {
         shipHeight = height/8;
         bitmapShip = Bitmap.createScaledBitmap(tmp, shipWidth, shipHeight, false);
         margin = shipWidth/2;
-        x= width / 2 - shipWidth/2; //bottom center of screen
-        y= height - shipHeight - margin;
-        vx=8;
-        this.width=width;
-        this.height=height;
+        x = width/2 - shipWidth/2; //bottom center of screen
+        y = height - shipHeight - margin;
+        vx = 8;
+        this.width = width;
+        this.height = height;
         Log.d("Log.DEBUG", "width=" + width + " height=" + height);
     }
 
@@ -75,4 +75,6 @@ public class Ship {
     public float getX(){
         return x;
     }
+
+    public float getY(){ return y; }
 }
