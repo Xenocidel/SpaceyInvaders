@@ -33,7 +33,7 @@ public class Bullet {
         this.width = width;
         this.height = height;
         margin = bulletWidth/2;
-        xi = shipXPosition *3 /2;
+        xi = (float)(shipXPosition + margin * 1.6); //+margin*1.6 so that bullet comes out of ship's cavity
         yi = shipYPosition-margin;
         x = xi;
         y = yi;
@@ -51,7 +51,7 @@ public class Bullet {
 
     //public void update(float shipXPosition, enemiesPositions
     public void update(float shipXPosition){
-        x = shipXPosition *3 /2;
+        x = (float)(shipXPosition + margin * 1.6); //+margin*1.6 so that bullet comes out of ship's cavity
         if (isShooting) {
             float tmpY;
             tmpY = y - vy;
