@@ -55,6 +55,12 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
             int lastAction = -1;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                //for now, player can only shoot when stopped and only one bullet can be on screen at a time
+                if (event.getY() < getHeight() * 3 / 4){
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        b.setShooting(true);
+                    }
+                }
                 switch(event.getActionIndex()) {
                     case 0:
                         switch (event.getActionMasked()) {

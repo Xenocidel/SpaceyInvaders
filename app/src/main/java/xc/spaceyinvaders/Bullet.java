@@ -22,40 +22,50 @@ public class Bullet {
     float x, y; //
     float vy; //speed of bullets in Y direction
     Bitmap bitmapBullet;
+    boolean isShooting;
 
     public Bullet(Context context, int width, int height, float shipXPosition, float shipYPosition) {
         Bitmap tmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet);
         bulletWidth = width/15;
         bulletHeight = height/25;
         bitmapBullet = Bitmap.createScaledBitmap(tmp, bulletWidth, bulletHeight, false);
-        vy = 300;
+        vy = 30;
         this.width = width;
         this.height = height;
         margin = bulletWidth/2;
-        xi = shipXPosition+margin;
+        xi = shipXPosition *3 /2;
         yi = shipYPosition-margin;
         x = xi;
         y = yi;
+        isShooting = false;
         Log.d("Log.DEBUG_BULLET", "width=" + width + " height=" + height);
     }
 
     public void draw(Canvas c){
         Paint p = new Paint();
         p.setColor(Color.RED);
-
-        c.drawBitmap(bitmapBullet, x, y, p);
+        if (isShooting) {
+            c.drawBitmap(bitmapBullet, x, y, p);
+        }
     }
 
-
-    public void update(float shipXPositon){
-        float tmpY;
-        tmpY= y - vy;
-        if(tmpY<0){
-            tmpY = yi;
-            x = shipXPositon + margin;
+    //public void update(float shipXPosition, enemiesPositions
+    public void update(float shipXPosition){
+        x = shipXPosition *3 /2;
+        if (isShooting) {
+            float tmpY;
+            tmpY = y - vy;
+            if (tmpY < 0) { //todo add collision logic
+                setShooting(false);
+            }
+            y = tmpY;
         }
-        y = tmpY;
+        else{
+            y = yi;
+        }
+    }
 
-
+    public void setShooting(boolean shooting){
+        isShooting = shooting;
     }
 }
