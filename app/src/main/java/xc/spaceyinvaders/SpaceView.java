@@ -43,8 +43,10 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     }
 
     Context context;
-    Ship s;
-    Bullet b;
+    Ship ship;
+    Bullet bullet;
+    Invaders[] invaders = new Invaders[100];
+    int numOfInvaders = 0;
     ImageView leftArrow;
     ImageView rightArrow;
     SpaceThread st ;
@@ -58,7 +60,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 //for now, player can only shoot when stopped and only one bullet can be on screen at a time
                 if (event.getY() < getHeight() * 3 / 4){
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        b.setShooting(true);
+                        bullet.setShooting(true);
                     }
                 }
                 switch(event.getActionIndex()) {
@@ -68,25 +70,25 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                                 Log.d("Log.debug", "ACTION_DOWN at X=" + Float.toString(event.getX()) + ", Y=" + Float.toString(event.getY()));
                                 if (event.getY() > getHeight() * 3 / 4) {
                                     if (event.getX() > getWidth() / 2) {
-                                        s.setMovementState(s.RIGHT);
+                                        ship.setMovementState(ship.RIGHT);
                                         lastAction = 0;
                                     } else {
-                                        s.setMovementState(s.LEFT);
+                                        ship.setMovementState(ship.LEFT);
                                         lastAction = 1;
                                     }
                                 }
                                 break;
                             case MotionEvent.ACTION_UP:
-                                s.setMovementState(s.STOPPED);
+                                ship.setMovementState(ship.STOPPED);
                                 lastAction = -1;
                                 break;
                             case MotionEvent.ACTION_POINTER_UP: //two buttons pressed, first one released
                                 Log.d("Log.debug", "First button released");
                                 if (event.getX(1) > getWidth() /2){
-                                    s.setMovementState(s.RIGHT);
+                                    ship.setMovementState(ship.RIGHT);
                                 }
                                 else if (event.getX(1) < getWidth() /2){
-                                    s.setMovementState(s.LEFT);
+                                    ship.setMovementState(ship.LEFT);
                                 }
                                 break;
                         }
@@ -96,20 +98,20 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                             case MotionEvent.ACTION_POINTER_DOWN:
                                 Log.d("Log.debug", "ACTION_POINTER_DOWN at X= "+Float.toString(event.getX(1)));
                                 if (event.getY(1) > getHeight() * 3 / 4) {
-                                    if (event.getX(1) < getWidth() / 2 && s.getMovementState() == s.RIGHT) { //cancel right movement
-                                        s.setMovementState(s.STOPPED);
-                                    } else if (event.getX(1) > getWidth() / 2 && s.getMovementState() == s.LEFT) { //cancel left movement
-                                        s.setMovementState(s.STOPPED);
+                                    if (event.getX(1) < getWidth() / 2 && ship.getMovementState() == ship.RIGHT) { //cancel right movement
+                                        ship.setMovementState(ship.STOPPED);
+                                    } else if (event.getX(1) > getWidth() / 2 && ship.getMovementState() == ship.LEFT) { //cancel left movement
+                                        ship.setMovementState(ship.STOPPED);
                                     }
                                 }
                                 break;
                             case MotionEvent.ACTION_POINTER_UP:
                                 switch(lastAction){
                                     case 0:
-                                        s.setMovementState(s.RIGHT);
+                                        ship.setMovementState(ship.RIGHT);
                                         break;
                                     case 1:
-                                        s.setMovementState(s.LEFT);
+                                        ship.setMovementState(ship.LEFT);
                                 }
                                 break;
                         }
@@ -118,8 +120,16 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 return false;
             }
         });
-        s=new Ship(this.context,getWidth(), getHeight());
-        b = new Bullet(this.context, getWidth(), getHeight(), s.getX(), s.getY());
+        ship=new Ship(this.context,getWidth(), getHeight());
+        bullet = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
+
+        for(int column=0; column<7; column++){
+            for(int row=0; row<4; row++ ){
+                invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column);
+                numOfInvaders++;
+            }
+        }
+
 
         //todo images not showing, not a high priority
         leftArrow = new ImageView(this.context);
@@ -151,10 +161,18 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     public void draw(Canvas c) {
         super.draw(c);
         c.drawColor(Color.BLACK);
-        s.draw(c);
-        s.update();
-        b.draw(c);
-        b.update(s.getX());
+        ship.draw(c);
+        ship.update();
+        bullet.draw(c);
+        bullet.update(ship.getX());
+        for(int i=0; i<numOfInvaders; i++){
+            if(invaders[i].isAlive){
+                invaders[i].draw(c);
+                invaders[i].update();
+            }
+        }
+
+
         rightArrow.draw(c);
         leftArrow.draw(c);
     }
