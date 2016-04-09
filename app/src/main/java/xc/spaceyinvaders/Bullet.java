@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.Log;
 
 /**
@@ -29,7 +30,7 @@ public class Bullet {
         bulletWidth = width/15;
         bulletHeight = height/25;
         bitmapBullet = Bitmap.createScaledBitmap(tmp, bulletWidth, bulletHeight, false);
-        vy = 30;
+        vy = 100;
         this.width = width;
         this.height = height;
         margin = bulletWidth/2;
@@ -68,4 +69,7 @@ public class Bullet {
     public void setShooting(boolean shooting){
         isShooting = shooting;
     }
+
+    public float getXPosiotn(){return x;}
+    public float getYPosiotn(){return y;}
 }

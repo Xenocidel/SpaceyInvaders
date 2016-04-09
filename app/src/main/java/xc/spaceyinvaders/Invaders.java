@@ -17,13 +17,21 @@ public class Invaders {
     int invadersWidth;
     int invadersHight;
     int margin;
-    float xi, yi; // initial position of bullets
+    int row;
+    int column;
     float x, y; //
+    final int LEFT = 1;
+    final int RIGHT = 2;
+    int shipMoving;
     float vx; //speed of invaders in Y direction
     Bitmap bitmapInvaders;
     boolean isAlive = true;
 
     public Invaders(Context context, int width, int height, int row, int column) {
+        this.width = width;
+        this.height = height;
+        this.row = row;
+        this.column = column;
         Bitmap tmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.spacey);
         invadersWidth = width/10;
         invadersHight = height/10;
@@ -32,6 +40,7 @@ public class Invaders {
         x = column * (invadersWidth + margin);
         y = row * (invadersHight + margin/2);
         vx = 20;
+        shipMoving = RIGHT;
     }
 
     public void draw(Canvas c){
@@ -42,8 +51,26 @@ public class Invaders {
     }
 
     public void update(){
+        if(shipMoving == LEFT) {
+            x = x - vx;
+            if(x <= margin){
+                shipMoving = RIGHT;
+                y = y + 4*(invadersHight + margin/2);
+                x = margin;
+            }
+        }
+        if(shipMoving == RIGHT) {
+            x = x + vx;
+            if(x >= width - invadersWidth - margin){
+                shipMoving = LEFT;
+                y = y + 4*(invadersHight + margin/2);
+                x = width - invadersHight - margin;
+            }
+        }
+
 
     }
 
     public boolean getIsAlive(){return isAlive; }
+
 }
