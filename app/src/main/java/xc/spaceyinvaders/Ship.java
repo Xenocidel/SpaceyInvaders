@@ -35,7 +35,7 @@ public class Ship {
         margin = shipWidth/2;
         x = width/2 - shipWidth/2; //bottom center of screen
         y = height - shipHeight - margin;
-        vx = 8;
+        vx = 80;
         this.width = width;
         this.height = height;
         Log.d("Log.DEBUG", "width=" + width + " height=" + height);
@@ -77,4 +77,6 @@ public class Ship {
     }
 
     public float getY(){ return y; }
+
+    public boolean getIsStopped(){ return shipMoving == STOPPED; }
 }

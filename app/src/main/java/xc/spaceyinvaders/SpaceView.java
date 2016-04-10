@@ -45,10 +45,12 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     Context context;
     Ship ship;
     Bullet[] bullet = new Bullet[200];
+    int maxNumOfBullet = 5; // you can set the maximum number of bullets
     int numOfBullet = 0;
     int numOfShoot = 0;
     Invaders[] invaders = new Invaders[100];
     int numOfInvaders = 0;
+    boolean bounded;
     ImageView leftArrow;
     ImageView rightArrow;
     SpaceThread st ;
@@ -63,8 +65,10 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 if (event.getY() < getHeight() * 3 / 4){
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                         bullet[numOfShoot].setShooting(true);
-                        if(numOfShoot < 200) {
+                        if(numOfShoot < maxNumOfBullet-1) {
                             numOfShoot++;
+                        }else{
+                            numOfShoot = 0;
                         }
                     }
                 }
@@ -126,12 +130,12 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
             }
         });
         ship=new Ship(this.context,getWidth(), getHeight());
-        for(int i=0; i<200; i++) {
+        for(int i=0; i<maxNumOfBullet; i++) {
             bullet[numOfBullet] = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
             numOfBullet++;
         }
-        for(int column=0; column<7; column++){
-            for(int row=0; row<4; row++ ){
+        for(int column=1; column<=6; column++){
+            for(int row=1; row<=4; row++ ){
                 invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column);
                 numOfInvaders++;
             }
@@ -169,21 +173,42 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         super.draw(c);
         c.drawColor(Color.BLACK);
         ship.draw(c);
-        ship.update();
         for(int i=0; i<numOfBullet; i++) {
             bullet[i].draw(c);
-            bullet[i].update(ship.getX());
         }
         for(int i=0; i<numOfInvaders; i++){
             if(invaders[i].isAlive){
                 invaders[i].draw(c);
-                invaders[i].update();
             }
         }
 
 
         rightArrow.draw(c);
         leftArrow.draw(c);
+    }
+
+    public void update(){
+        ship.update();
+        //bullet[] update
+        for(int i=0; i<numOfBullet; i++) {
+            bullet[i].update(ship.getX());
+        }
+        //invaders update
+        for(int i=0; i<numOfInvaders; i++){
+            if(invaders[i].isAlive){
+                invaders[i].update();
+                if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
+                    bounded = true; //invader is at the bound of screen
+                }
+            }
+        }
+        //if one invader touched the bound of screen, all invaders go down and reverse
+        if(bounded){
+            for(int i=0; i<numOfInvaders; i++){
+                invaders[i].goDownAndReverse();
+            }
+            bounded = false;
+        }
     }
 
     @Override

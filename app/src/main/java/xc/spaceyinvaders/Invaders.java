@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
+import android.widget.Switch;
 
 /**
  * Created by Jimmy on 2016/4/8.
@@ -25,7 +27,7 @@ public class Invaders {
     int shipMoving;
     float vx; //speed of invaders in Y direction
     Bitmap bitmapInvaders;
-    boolean isAlive = true;
+    boolean isAlive;
 
     public Invaders(Context context, int width, int height, int row, int column) {
         this.width = width;
@@ -39,8 +41,9 @@ public class Invaders {
         margin = invadersWidth/4;
         x = column * (invadersWidth + margin);
         y = row * (invadersHight + margin/2);
-        vx = 20;
+        vx = 10;
         shipMoving = RIGHT;
+        isAlive = true;
     }
 
     public void draw(Canvas c){
@@ -53,24 +56,25 @@ public class Invaders {
     public void update(){
         if(shipMoving == LEFT) {
             x = x - vx;
-            if(x <= margin){
-                shipMoving = RIGHT;
-                y = y + 4*(invadersHight + margin/2);
-                x = margin;
-            }
         }
         if(shipMoving == RIGHT) {
             x = x + vx;
-            if(x >= width - invadersWidth - margin){
-                shipMoving = LEFT;
-                y = y + 4*(invadersHight + margin/2);
-                x = width - invadersHight - margin;
-            }
         }
+    }
 
-
+    public void goDownAndReverse(){
+        y = y + 2*margin;
+        switch (shipMoving){
+            case LEFT:
+                shipMoving = RIGHT;
+                break;
+            case RIGHT:
+                shipMoving = LEFT;
+                break;
+        }
     }
 
     public boolean getIsAlive(){return isAlive; }
-
+    public float getX(){return x;}
+    public float getWidth(){return (float)invadersWidth + margin;}
 }

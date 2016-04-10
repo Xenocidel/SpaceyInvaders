@@ -20,6 +20,7 @@ public class SpaceThread extends Thread {
             try {
                 synchronized(sh) {
                     sv.draw(c);
+                    sv.update();
                 }
             } catch (Exception e) {
             } finally {

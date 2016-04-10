@@ -69,7 +69,7 @@ public class Bullet {
     public void setShooting(boolean shooting){
         isShooting = shooting;
     }
-
+    
     public float getXPosiotn(){return x;}
     public float getYPosiotn(){return y;}
 }
