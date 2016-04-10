@@ -44,7 +44,9 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
 
     Context context;
     Ship ship;
-    Bullet bullet;
+    Bullet[] bullet = new Bullet[200];
+    int numOfBullet = 0;
+    int numOfShoot = 0;
     Invaders[] invaders = new Invaders[100];
     int numOfInvaders = 0;
     ImageView leftArrow;
@@ -57,10 +59,13 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
             int lastAction = -1;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //for now, player can only shoot when stopped and only one bullet can be on screen at a time
+                //for now, player can only shoot when stopped and multiple bullets can be on screen at a time
                 if (event.getY() < getHeight() * 3 / 4){
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        bullet.setShooting(true);
+                        bullet[numOfShoot].setShooting(true);
+                        if(numOfShoot < 200) {
+                            numOfShoot++;
+                        }
                     }
                 }
                 switch(event.getActionIndex()) {
@@ -121,8 +126,10 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
             }
         });
         ship=new Ship(this.context,getWidth(), getHeight());
-        bullet = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
-
+        for(int i=0; i<200; i++) {
+            bullet[numOfBullet] = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
+            numOfBullet++;
+        }
         for(int column=0; column<7; column++){
             for(int row=0; row<4; row++ ){
                 invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column);
@@ -163,8 +170,10 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         c.drawColor(Color.BLACK);
         ship.draw(c);
         ship.update();
-        bullet.draw(c);
-        bullet.update(ship.getX());
+        for(int i=0; i<numOfBullet; i++) {
+            bullet[i].draw(c);
+            bullet[i].update(ship.getX());
+        }
         for(int i=0; i<numOfInvaders; i++){
             if(invaders[i].isAlive){
                 invaders[i].draw(c);
