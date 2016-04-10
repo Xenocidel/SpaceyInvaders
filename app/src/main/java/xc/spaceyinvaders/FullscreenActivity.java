@@ -38,5 +38,4 @@ public class FullscreenActivity extends Activity {
         Intent intent = new Intent(this, InGame.class);
         startActivity(intent);
     }
-
 }

@@ -30,7 +30,7 @@ public class Bullet {
         bulletWidth = width/15;
         bulletHeight = height/25;
         bitmapBullet = Bitmap.createScaledBitmap(tmp, bulletWidth, bulletHeight, false);
-        vy = 100;
+        vy = 40;
         this.width = width;
         this.height = height;
         margin = bulletWidth/2;

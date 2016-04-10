@@ -25,7 +25,7 @@ public class Ship {
     final int RIGHT = 2;
     int shipMoving  =STOPPED;
 
-
+    public Ship(){}
 
     public Ship(Context context, int width, int height) {
         Bitmap tmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.ship);
@@ -35,7 +35,7 @@ public class Ship {
         margin = shipWidth/2;
         x = width/2 - shipWidth/2; //bottom center of screen
         y = height - shipHeight - margin;
-        vx = 80;
+        vx = 10;
         this.width = width;
         this.height = height;
         Log.d("Log.DEBUG", "width=" + width + " height=" + height);

@@ -1,6 +1,7 @@
 package xc.spaceyinvaders;
 
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +17,6 @@ import xc.spaceyinvaders.R;
 
 public class InGame extends AppCompatActivity {
 
-    boolean inGame;
     SpaceView spaceView;
 
     @Override
@@ -89,46 +89,6 @@ public class InGame extends AppCompatActivity {
             finish();
             Intent intent = new Intent(getApplicationContext(), FullscreenActivity.class);
             startActivity(intent);
-            return true;
-        }
-
-        //keyboard input left
-        if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_W) {
-            //ship.moveLeft();
-            return true;
-        }
-
-        //keyboard input right
-        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_D) {
-            //ship.moveRight();
-            return true;
-        }
-
-        //keyboard input shoot
-        if (keyCode == KeyEvent.KEYCODE_SPACE) {
-            //ship.shoot();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        //keyboard input left
-        if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_W) {
-            //ship.moveLeftStop();
-            return true;
-        }
-
-        //keyboard input right
-        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_D) {
-            //ship.moveRightStop();
-            return true;
-        }
-
-        //keyboard input shoot
-        if (keyCode == KeyEvent.KEYCODE_SPACE) {
-            //ship.shootStop();
             return true;
         }
         return false;

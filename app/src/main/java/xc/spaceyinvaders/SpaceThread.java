@@ -8,6 +8,7 @@ import android.view.SurfaceHolder;
  */
 public class SpaceThread extends Thread {
     SpaceView sv;
+    boolean gameLoaded = false;
     public SpaceThread(SpaceView sv) {
         this.sv=sv;
     }
@@ -16,6 +17,10 @@ public class SpaceThread extends Thread {
         // Main game loop.
         while( !Thread.interrupted() ) {
         //You might want to do game specific processing in a method you call here
+            if (!gameLoaded) { //loading is done in the thread to prevent screen freezing effect
+                sv.loadGame();
+                gameLoaded = true;
+            }
             Canvas c = sh.lockCanvas(null);
             try {
                 synchronized(sh) {

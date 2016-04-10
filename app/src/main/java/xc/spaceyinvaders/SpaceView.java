@@ -51,12 +51,13 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     Invaders[] invaders = new Invaders[100];
     int numOfInvaders = 0;
     boolean bounded;
+    Ufo ufo;
     ImageView leftArrow;
     ImageView rightArrow;
     SpaceThread st ;
-    @Override
-    public void surfaceCreated ( SurfaceHolder holder ) {
-        //ship movement
+
+    public void loadGame(){
+        //touch handling
         setOnTouchListener(new OnTouchListener() {
             int lastAction = -1;
             @Override
@@ -93,11 +94,12 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                                 break;
                             case MotionEvent.ACTION_POINTER_UP: //two buttons pressed, first one released
                                 Log.d("Log.debug", "First button released");
-                                if (event.getX(1) > getWidth() /2){
-                                    ship.setMovementState(ship.RIGHT);
-                                }
-                                else if (event.getX(1) < getWidth() /2){
-                                    ship.setMovementState(ship.LEFT);
+                                if (event.getY(1) > getHeight() * 3 / 4) {
+                                    if (event.getX(1) > getWidth() / 2) {
+                                        ship.setMovementState(ship.RIGHT);
+                                    } else if (event.getX(1) < getWidth() / 2) {
+                                        ship.setMovementState(ship.LEFT);
+                                    }
                                 }
                                 break;
                         }
@@ -140,7 +142,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 numOfInvaders++;
             }
         }
-
+        ufo = new Ufo(this.context, getWidth(), getHeight());
 
         //todo images not showing, not a high priority
         leftArrow = new ImageView(this.context);
@@ -162,7 +164,10 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         rightArrow.setX(getWidth()/2);
         rightArrow.setY(getHeight() - getHeight() / 4);
         rightArrow.setScaleType(ImageView.ScaleType.FIT_CENTER);
+    }
 
+    @Override
+    public void surfaceCreated ( SurfaceHolder holder ) {
         // Launch animator thread
         st = new SpaceThread(this);
         st.start();
@@ -173,6 +178,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         super.draw(c);
         c.drawColor(Color.BLACK);
         ship.draw(c);
+        ufo.draw(c);
         for(int i=0; i<numOfBullet; i++) {
             bullet[i].draw(c);
         }
@@ -189,6 +195,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
 
     public void update(){
         ship.update();
+        ufo.update();
         //bullet[] update
         for(int i=0; i<numOfBullet; i++) {
             bullet[i].update(ship.getX());
