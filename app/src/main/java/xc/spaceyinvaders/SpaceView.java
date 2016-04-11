@@ -188,9 +188,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
             bullet[i].draw(c);
         }
         for(int i=0; i<numOfInvaders; i++){
-            if(invaders[i].isAlive){
-                invaders[i].draw(c);
-            }
+            invaders[i].draw(c);
         }
 
 
@@ -204,13 +202,26 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         //bullet[] update
         for(int i=0; i<numOfBullet; i++) {
             bullet[i].update(ship.getX());
+            //Log.d("DEBUG","bullet[" +i+"].getX()="+bullet[i].getX());
         }
         //invaders update
         for(int i=0; i<numOfInvaders; i++){
-            if(invaders[i].isAlive){
-                invaders[i].update();
-                if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
-                    bounded = true; //invader is at the bound of screen
+            //Log.d("DEBUG","invaders[" +i+"].getX()="+invaders[i].getX());
+            invaders[i].update();
+            if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
+                bounded = true; //invader is at the bound of screen
+            }
+        }
+        //if a bullet colliding a invader, invaders[i].isAlive = false
+        for(int i=0; i<numOfInvaders; i++){
+            for(int j=0; j<numOfBullet; j++){
+                if(invaders[i].isAlive) {
+                    if (Math.abs(invaders[i].getX() + invaders[i].invadersWidth / 2 - bullet[j].getX()) < invaders[i].invadersWidth / 4
+                            && Math.abs(invaders[i].getY() - bullet[j].getY()) < invaders[i].invadersHight / 2) {
+                        invaders[i].isAlive = false;
+                        bullet[j].isAlive = false;
+                        Log.d("DEBUG", "invaders[" + i + "] = false");
+                    }
                 }
             }
         }

@@ -24,6 +24,7 @@ public class Bullet {
     float vy; //speed of bullets in Y direction
     Bitmap bitmapBullet;
     boolean isShooting;
+    boolean isAlive;
 
     public Bullet(Context context, int width, int height, float shipXPosition, float shipYPosition) {
         Bitmap tmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet);
@@ -39,6 +40,7 @@ public class Bullet {
         x = xi;
         y = yi;
         isShooting = false;
+        isAlive = true;
         Log.d("Log.DEBUG_BULLET", "width=" + width + " height=" + height);
     }
 
@@ -55,14 +57,15 @@ public class Bullet {
         if (isShooting) {
             float tmpY;
             tmpY = y - vy;
-            if (tmpY < 0) { //todo add collision logic
+            if (tmpY < 0 || (!isAlive)) { //todo add collision logic
                 setShooting(false);
             }
             y = tmpY;
         }
         else{
             y = yi;
-            x = (float) (shipXPosition + margin * 1.6); //+margin*1.6 so that bullet comes out of ship's cavity
+            x = (float) (shipXPosition + margin * 1.6);//+margin*1.6 so that bullet comes out of ship's cavity
+            isAlive = true;
         }
     }
 

@@ -50,16 +50,19 @@ public class Invaders {
         Paint p = new Paint();
         p.setColor(Color.RED);
 
-        c.drawBitmap(bitmapInvaders, x, y, p);
+        if(isAlive) {
+            c.drawBitmap(bitmapInvaders, x, y, p);
+        }
     }
 
     public void update(){
-        if(shipMoving == LEFT) {
+        if (shipMoving == LEFT) {
             x = x - vx;
         }
-        if(shipMoving == RIGHT) {
+        if (shipMoving == RIGHT) {
             x = x + vx;
         }
+
     }
 
     public void goDownAndReverse(){
@@ -74,7 +77,7 @@ public class Invaders {
         }
     }
 
-    public boolean getIsAlive(){return isAlive; }
-    public float getX(){return x;}
-    public float getWidth(){return (float)invadersWidth + margin;}
+    public float getX(){ return x; }
+    public float getY(){ return y; }
+    public float getWidth(){ return (float)invadersWidth + margin; }
 }
