@@ -27,10 +27,9 @@ public class InGame extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        Log.d("1a", "onCreate");
         spaceView = new SpaceView(this);
         setContentView(spaceView);
-
     }
 
 

@@ -54,7 +54,8 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     Ufo ufo;
     ImageView leftArrow;
     ImageView rightArrow;
-    SpaceThread st ;
+    SpaceThread st;
+    boolean gameLoaded = false;
 
     public void loadGame(){
         //touch handling
@@ -169,8 +170,12 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     @Override
     public void surfaceCreated ( SurfaceHolder holder ) {
         // Launch animator thread
-        st = new SpaceThread(this);
-        st.start();
+        Log.d("1a", "surfaceCreated");
+        if (!gameLoaded) {
+            st = new SpaceThread(this);
+            st.start();
+            gameLoaded = true;
+        }
     }
 
     @Override

@@ -52,7 +52,6 @@ public class Bullet {
 
     //public void update(float shipXPosition, enemiesPositions
     public void update(float shipXPosition){
-        x = (float)(shipXPosition + margin * 1.6); //+margin*1.6 so that bullet comes out of ship's cavity
         if (isShooting) {
             float tmpY;
             tmpY = y - vy;
@@ -63,6 +62,7 @@ public class Bullet {
         }
         else{
             y = yi;
+            x = (float) (shipXPosition + margin * 1.6); //+margin*1.6 so that bullet comes out of ship's cavity
         }
     }
 
@@ -70,6 +70,6 @@ public class Bullet {
         isShooting = shooting;
     }
     
-    public float getXPosiotn(){return x;}
-    public float getYPosiotn(){return y;}
+    public float getX(){return x;}
+    public float getY(){return y;}
 }

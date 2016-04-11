@@ -1,6 +1,7 @@
 package xc.spaceyinvaders;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 /**
@@ -8,17 +9,19 @@ import android.view.SurfaceHolder;
  */
 public class SpaceThread extends Thread {
     SpaceView sv;
-    boolean gameLoaded = false;
+    boolean gameLoaded;
+
     public SpaceThread(SpaceView sv) {
         this.sv=sv;
+        gameLoaded = false;
     }
     public void run() {
         SurfaceHolder sh = sv.getHolder();
         // Main game loop.
         while( !Thread.interrupted() ) {
         //You might want to do game specific processing in a method you call here
-            if (!gameLoaded) { //loading is done in the thread to prevent screen freezing effect
-                sv.loadGame();
+            if (!gameLoaded) {
+                sv.loadGame(); //loading is done in the thread to prevent screen freezing effect
                 gameLoaded = true;
             }
             Canvas c = sh.lockCanvas(null);
