@@ -24,14 +24,14 @@ public class FullscreenActivity extends Activity {
 
         //fullscreen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_fullscreen);
         mPrefs= PreferenceManager.getDefaultSharedPreferences(this);
         highScore=(TextView)findViewById(R.id.highscore);
         hsi = mPrefs.getInt("high", 0);     //saved high score as variable "high", default value 0
-        highScore.setText("Best: " + hsi);
+        String string = "Best: "+hsi;
+        highScore.setText(string);
     }
 
     public void startGame(View view){

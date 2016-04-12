@@ -29,7 +29,7 @@ public class Invaders {
     Bitmap bitmapInvaders;
     boolean isAlive;
 
-    public Invaders(Context context, int width, int height, int row, int column) {
+    public Invaders(Context context, int width, int height, int row, int column, float level) {
         this.width = width;
         this.height = height;
         this.row = row;
@@ -41,7 +41,7 @@ public class Invaders {
         margin = invadersWidth/4;
         x = column * (invadersWidth + margin);
         y = row * (invadersHight + margin/2);
-        vx = 0.5f;
+        vx = (float)(Math.pow(level/2, 2));
         shipMoving = RIGHT;
         isAlive = true;
     }
@@ -80,4 +80,8 @@ public class Invaders {
     public float getX(){ return x; }
     public float getY(){ return y; }
     public float getWidth(){ return (float)invadersWidth + margin; }
+    public float getHeight(){
+        return (float)(invadersHight);
+    }
+
 }

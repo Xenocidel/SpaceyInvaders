@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/highscore"
+        android:text=""
         android:textSize="27sp"
         android:textColor="#FFFFFF"
         android:id="@+id/highscore"

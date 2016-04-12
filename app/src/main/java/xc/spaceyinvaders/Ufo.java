@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.util.Log;
 
 import java.util.Random;
 
@@ -23,6 +24,7 @@ public class Ufo extends Ship{
         y = margin;
         x = -width/2; //starts off screen left
         shipMoving = RIGHT; //starts moving right
+        Log.d("Load", "UFO");
     }
 
     @Override

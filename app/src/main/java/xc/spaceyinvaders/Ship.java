@@ -38,7 +38,7 @@ public class Ship {
         vx = 10;
         this.width = width;
         this.height = height;
-        Log.d("Log.DEBUG", "width=" + width + " height=" + height);
+        Log.d("Load", "Ship");
     }
 
     void draw(Canvas c) {

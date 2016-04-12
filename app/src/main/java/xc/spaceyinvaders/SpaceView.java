@@ -3,6 +3,7 @@ package xc.spaceyinvaders;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,6 +15,7 @@ import android.graphics.RectF;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -29,6 +31,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by Jimmy on 2016/4/5.
@@ -50,12 +54,19 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     int numOfShoot = 0;
     Invaders[] invaders = new Invaders[100];
     int numOfInvaders = 0;
+    int numOfInvadersAlive = 0;
+    float level = 1;
+    //1-(1/sqrt(2)) is used instead of 0.5 to put 'hitbox' inside the circle rather than circumscribing it
+    float touchDistanceY;
+    float touchDistanceX;
     boolean bounded;
     Ufo ufo;
-    ImageView leftArrow;
-    ImageView rightArrow;
     SpaceThread st;
     boolean gameLoaded = false;
+
+    int score;
+    String scoreString = "Score: 0";
+    String levelString = "Level: 1";
 
     public void loadGame(){
         //touch handling
@@ -132,73 +143,74 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 return false;
             }
         });
+
+        //ship creation
         ship=new Ship(this.context,getWidth(), getHeight());
+        //bullet creation
         for(int i=0; i<maxNumOfBullet; i++) {
             bullet[numOfBullet] = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
             numOfBullet++;
         }
-        for(int column=1; column<=6; column++){
-            for(int row=1; row<=4; row++ ){
-                invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column);
-                numOfInvaders++;
-            }
-        }
+        //invader creation
+        createInvaders(1);
+        touchDistanceY = (float)(invaders[0].invadersHight*0.5 + bullet[0].bulletHeight*0.293);
+        touchDistanceX = (float)(invaders[0].invadersWidth*0.293 + bullet[0].bulletWidth*0.293);
+        //ufo creation
         ufo = new Ufo(this.context, getWidth(), getHeight());
 
-        //todo images not showing, not a high priority
-        leftArrow = new ImageView(this.context);
-        leftArrow.setImageResource(R.drawable.leftbutton);
-        leftArrow.setAlpha(0.2f);
-        leftArrow.setAdjustViewBounds(true);
-        leftArrow.setMaxWidth(getWidth() / 2);
-        leftArrow.setMaxHeight(getHeight() / 4);
-        leftArrow.setX(0);
-        leftArrow.setY(getHeight() - getHeight() / 4);
-        leftArrow.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-        rightArrow = new ImageView(this.context);
-        rightArrow.setImageResource(R.drawable.rightbutton);
-        rightArrow.setAlpha(0.2f);
-        rightArrow.setAdjustViewBounds(true);
-        rightArrow.setMaxWidth(getWidth() / 2);
-        rightArrow.setMaxHeight(getHeight() / 4);
-        rightArrow.setX(getWidth()/2);
-        rightArrow.setY(getHeight() - getHeight() / 4);
-        rightArrow.setScaleType(ImageView.ScaleType.FIT_CENTER);
     }
 
     @Override
     public void surfaceCreated ( SurfaceHolder holder ) {
         // Launch animator thread
-        Log.d("1a", "surfaceCreated");
         if (!gameLoaded) {
             st = new SpaceThread(this);
             st.start();
             gameLoaded = true;
         }
+        Log.d("Load", "surfaceView/Thread");
     }
 
     @Override
     public void draw(Canvas c) {
         super.draw(c);
         c.drawColor(Color.BLACK);
-        ship.draw(c);
+        Log.d("Draw", "Background");
+
+        Paint p = new Paint();
+        p.setColor(Color.WHITE);
+        p.setTextSize(getHeight()/25);
+        p.setStyle(Paint.Style.FILL);
+        p.setAntiAlias(true);
+
         ufo.draw(c);
+        Log.d("Draw", "Ufo");
+        ship.draw(c);
+        Log.d("Draw", "Ship");
+
         for(int i=0; i<numOfBullet; i++) {
             bullet[i].draw(c);
         }
+        Log.d("Draw", "Bullet");
         for(int i=0; i<numOfInvaders; i++){
             invaders[i].draw(c);
         }
+        Log.d("Draw", "Invaders");
 
+        c.drawLine(0, getHeight()-getHeight()/4, getWidth(), getHeight()-getHeight()/4, p);
+        Log.d("Draw", "Line");
 
-        rightArrow.draw(c);
-        leftArrow.draw(c);
+        c.drawText(scoreString, 10, getHeight()*3/4-5, p);
+        p.setTextAlign(Paint.Align.RIGHT);
+        c.drawText(levelString, getWidth()-10, getHeight()*3/4-5, p);
+
     }
 
     public void update(){
         ship.update();
         ufo.update();
+        Log.d("score", ""+scoreString);
+
         //bullet[] update
         for(int i=0; i<numOfBullet; i++) {
             bullet[i].update(ship.getX());
@@ -208,30 +220,75 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         for(int i=0; i<numOfInvaders; i++){
             //Log.d("DEBUG","invaders[" +i+"].getX()="+invaders[i].getX());
             invaders[i].update();
-            if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
-                bounded = true; //invader is at the bound of screen
-            }
-        }
-        //if a bullet colliding a invader, invaders[i].isAlive = false
-        for(int i=0; i<numOfInvaders; i++){
-            for(int j=0; j<numOfBullet; j++){
-                if(invaders[i].isAlive) {
-                    if (Math.abs(invaders[i].getX() + invaders[i].invadersWidth / 2 - bullet[j].getX()) < invaders[i].invadersWidth / 4
-                            && Math.abs(invaders[i].getY() - bullet[j].getY()) < invaders[i].invadersHight / 2) {
-                        invaders[i].isAlive = false;
-                        bullet[j].isAlive = false;
-                        Log.d("DEBUG", "invaders[" + i + "] = false");
-                    }
+            if (invaders[i].isAlive) {
+                if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
+                    bounded = true; //invader is at the bound of screen
                 }
             }
         }
+
+        collisionDetection();
+
         //if one invader touched the bound of screen, all invaders go down and reverse
         if(bounded){
             for(int i=0; i<numOfInvaders; i++){
                 invaders[i].goDownAndReverse();
+                //game over when any live invader crosses the line (3/4 down)
+                if (invaders[i].isAlive && (invaders[i].getY() + invaders[i].getHeight() > getHeight()*3/4)) {
+                    Log.d("Status", "Game Over");
+                    st.setGameState(st.OVER);
+                }
             }
             bounded = false;
         }
+    }
+
+    public void collisionDetection(){
+        //if a bullet collides with an invader, invaders[i].isAlive = false
+
+        for(int j=0; j<numOfBullet; j++){
+            if (bullet[j].isShooting) {
+                for(int i=0; i<numOfInvaders; i++){
+                    if (invaders[i].isAlive) {
+                        float iCenterX = invaders[i].getX() + invaders[i].invadersWidth / 2;
+                        float iCenterY = invaders[i].getY() - invaders[i].invadersHight / 2;
+                        float bCenterX = bullet[j].getX() + bullet[j].bulletWidth / 2;
+                        float bCenterY = bullet[j].getY() + bullet[j].bulletHeight / 2;
+                        if ((Math.abs(iCenterY - bCenterY) <= touchDistanceY) && (Math.abs(iCenterX - bCenterX) <= touchDistanceX)) {
+                            invaders[i].isAlive = false;
+                            bullet[j].isAlive = false;
+                            bullet[j].update(ship.getX()); //to prevent multi-kill with one bullet
+                            score+=level;
+                            if (--numOfInvadersAlive == 0) {
+                                //remove all bullets in the air before loading next level
+                                for (int k = 0; k < numOfBullet; k++){
+                                    if (bullet[k].isShooting){
+                                        bullet[k].setShooting(false);
+                                    }
+                                }
+                                createInvaders(++level);
+                                score+=level*level;
+                            }
+                            scoreString = "Score: "+score;
+                            levelString = "Level: "+(int)level;
+                            Log.d("collisionDetection", "invaders[" + i + "] removed by bullet["+j+"]");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void createInvaders(float level){
+        numOfInvaders = 0;
+        for(int column=1; column<=6; column++){
+            for(int row=1; row<=4; row++ ){
+                invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column, level);
+                numOfInvaders++;
+                numOfInvadersAlive++;
+            }
+        }
+        Log.d("Load", "Level "+(int)level);
     }
 
     @Override
@@ -241,5 +298,9 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     @Override
     public void surfaceDestroyed ( SurfaceHolder holder ) {
         // The cleanest way to stop a thread is by interrupting it. // SpaceThread regularly checks its interrupt flag. st.interrupt();
+    }
+
+    public int getScore(){
+        return score;
     }
 }

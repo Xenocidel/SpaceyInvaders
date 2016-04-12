@@ -31,7 +31,7 @@ public class Bullet {
         bulletWidth = width/15;
         bulletHeight = height/25;
         bitmapBullet = Bitmap.createScaledBitmap(tmp, bulletWidth, bulletHeight, false);
-        vy = 40;
+        vy = 10;
         this.width = width;
         this.height = height;
         margin = bulletWidth/2;
@@ -41,7 +41,7 @@ public class Bullet {
         y = yi;
         isShooting = false;
         isAlive = true;
-        Log.d("Log.DEBUG_BULLET", "width=" + width + " height=" + height);
+        Log.d("Load", "Bullet");
     }
 
     public void draw(Canvas c){
@@ -52,12 +52,11 @@ public class Bullet {
         }
     }
 
-    //public void update(float shipXPosition, enemiesPositions
     public void update(float shipXPosition){
         if (isShooting) {
             float tmpY;
             tmpY = y - vy;
-            if (tmpY < 0 || (!isAlive)) { //todo add collision logic
+            if (tmpY < 0 || (!isAlive)) { //isAlive is linked to collision detection, which is in SpaceView's update()
                 setShooting(false);
             }
             y = tmpY;
