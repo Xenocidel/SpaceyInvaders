@@ -13,6 +13,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -68,7 +69,21 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     String scoreString = "Score: 0";
     String levelString = "Level: 1";
 
+    SoundPool soundPool;
+    int soundLaser, soundBomb;
+    boolean loaded = false;
+
     public void loadGame(){
+        //Sound handling
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                loaded = true;
+            }
+        });
+        soundLaser = soundPool.load(this.context, R.raw.laser, 1);
+        soundBomb = soundPool.load(this.context, R.raw.bomb, 1);
         //touch handling
         setOnTouchListener(new OnTouchListener() {
             int lastAction = -1;
@@ -77,6 +92,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 //for now, player can only shoot when stopped and multiple bullets can be on screen at a time
                 if (event.getY() < getHeight() * 3 / 4){
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        soundPool.play(soundLaser,0.05f,0.05f,0,0,1);
                         bullet[numOfShoot].setShooting(true);
                         if(numOfShoot < maxNumOfBullet-1) {
                             numOfShoot++;
@@ -255,6 +271,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                         float bCenterX = bullet[j].getX() + bullet[j].bulletWidth / 2;
                         float bCenterY = bullet[j].getY() + bullet[j].bulletHeight / 2;
                         if ((Math.abs(iCenterY - bCenterY) <= touchDistanceY) && (Math.abs(iCenterX - bCenterX) <= touchDistanceX)) {
+                            soundPool.play(soundBomb,0.1f,0.1f,1,0,1);
                             invaders[i].isAlive = false;
                             bullet[j].isAlive = false;
                             bullet[j].update(ship.getX()); //to prevent multi-kill with one bullet
