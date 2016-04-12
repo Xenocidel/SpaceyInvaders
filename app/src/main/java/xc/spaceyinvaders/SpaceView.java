@@ -283,6 +283,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                                         bullet[k].setShooting(false);
                                     }
                                 }
+
                                 createInvaders(++level);
                                 score+=level*level;
                             }
