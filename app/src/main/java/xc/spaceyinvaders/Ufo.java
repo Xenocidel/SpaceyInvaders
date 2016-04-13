@@ -54,4 +54,9 @@ public class Ufo extends Ship{
             }
         }
     }
+    @Override
+    public float getX(){ return super.getX(); }
+
+    @Override
+    public float getY(){ return super.getY(); }
 }

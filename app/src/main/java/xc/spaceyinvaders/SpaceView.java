@@ -61,6 +61,8 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     //1-(1/sqrt(2)) is used instead of 0.5 to put 'hitbox' inside the circle rather than circumscribing it
     float touchDistanceY;
     float touchDistanceX;
+    float touchDistanceXforUFO;
+    float touchDistanceYforUFO;
     boolean bounded;
     Ufo ufo;
     SpaceThread st;
@@ -71,7 +73,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     String levelString = "Level: 1";
 
     SoundPool soundPool;
-    int soundLaser, soundBomb;
+    int soundLaser, soundBomb, soundShotUFO;
     boolean loaded = false;
 
     public void loadGame(){
@@ -92,6 +94,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         });
         soundLaser = soundPool.load(this.context, R.raw.laser, 1);
         soundBomb = soundPool.load(this.context, R.raw.bomb, 1);
+        soundShotUFO = soundPool.load(this.context, R.raw.shotufo, 1);
         //touch handling
         loadTouchHandler();
 
@@ -108,6 +111,8 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         touchDistanceX = (float)(invaders[0].invadersWidth*0.293 + bullet[0].bulletWidth*0.293);
         //ufo creation
         ufo = new Ufo(this.context, getWidth(), getHeight());
+        touchDistanceYforUFO = (float)(ufo.shipHeight*0.5 + bullet[0].bulletHeight*0.293);
+        touchDistanceXforUFO = (float)(ufo.shipWidth*0.293 + bullet[0].bulletWidth*0.5);
 
     }
 
@@ -213,12 +218,21 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         outerLoop:
         for(int j=0; j<numOfBullet; j++){
             if (bullet[j].isShooting) {
+                float bCenterX = bullet[j].getX() + bullet[j].bulletWidth / 2;
+                float bCenterY = bullet[j].getY() - bullet[j].bulletHeight / 2;
+                float uCenterX = ufo.getX() + ufo.shipWidth / 2;
+                float uCenterY = ufo.getY() - ufo.shipWidth / 2;
+                if((Math.abs(uCenterY - bCenterY) <= touchDistanceYforUFO ) && (Math.abs(uCenterX - bCenterX) <= touchDistanceXforUFO)){
+                    soundPool.play(soundShotUFO,1,1,1,0,1);
+                    bullet[j].isAlive = false;
+                    bullet[j].update(ship.getX()); //to prevent multi-kill with one bullet
+                    score += 100;
+                    scoreString = "Score: "+score;
+                }
                 for(int i=0; i<numOfInvaders; i++){
                     if (invaders[i].isAlive) {
                         float iCenterX = invaders[i].getX() + invaders[i].invadersWidth / 2;
                         float iCenterY = invaders[i].getY() - invaders[i].invadersHight / 2;
-                        float bCenterX = bullet[j].getX() + bullet[j].bulletWidth / 2;
-                        float bCenterY = bullet[j].getY() - bullet[j].bulletHeight / 2;
                         if ((Math.abs(iCenterY - bCenterY) <= touchDistanceY) && (Math.abs(iCenterX - bCenterX) <= touchDistanceX)) {
                             soundPool.play(soundBomb,0.1f,0.1f,1,0,1);
                             invaders[i].isAlive = false;
