@@ -125,36 +125,50 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     @Override
     public void draw(Canvas c) {
         super.draw(c);
-        c.drawColor(Color.BLACK);
-        Log.i("Draw", "Background");
+        if (st.gameState == st.OVER){
+            Paint p = new Paint();
+            p.setColor(Color.WHITE);
+            p.setTextSize(getHeight() / 15);
+            p.setStyle(Paint.Style.FILL);
+            p.setAntiAlias(true);
+            p.setTextAlign(Paint.Align.CENTER);
 
-        Paint p = new Paint();
-        p.setColor(Color.WHITE);
-        p.setTextSize(getHeight()/25);
-        p.setStyle(Paint.Style.FILL);
-        p.setAntiAlias(true);
+            c.drawText("Game Over!", getWidth()/2, getHeight()/2-getHeight()/15, p);
 
-        ufo.draw(c);
-        Log.i("Draw", "Ufo");
-        ship.draw(c);
-        Log.i("Draw", "Ship");
-
-        for(int i=0; i<numOfBullet; i++) {
-            bullet[i].draw(c);
+            p.setTextSize(getHeight() / 20);
+            c.drawText(scoreString, getWidth()/2, getHeight()/2+getHeight()/15, p);
         }
-        Log.i("Draw", "Bullet");
-        for(int i=0; i<numOfInvaders; i++){
-            invaders[i].draw(c);
+        else {
+            c.drawColor(Color.BLACK);
+            Log.i("Draw", "Background");
+
+            Paint p = new Paint();
+            p.setColor(Color.WHITE);
+            p.setTextSize(getHeight() / 25);
+            p.setStyle(Paint.Style.FILL);
+            p.setAntiAlias(true);
+
+            ufo.draw(c);
+            Log.i("Draw", "Ufo");
+            ship.draw(c);
+            Log.i("Draw", "Ship");
+
+            for (int i = 0; i < numOfBullet; i++) {
+                bullet[i].draw(c);
+            }
+            Log.i("Draw", "Bullet");
+            for (int i = 0; i < numOfInvaders; i++) {
+                invaders[i].draw(c);
+            }
+            Log.i("Draw", "Invaders");
+
+            c.drawLine(0, getHeight() - getHeight() / 4, getWidth(), getHeight() - getHeight() / 4, p);
+            Log.i("Draw", "Line");
+
+            c.drawText(scoreString, 10, getHeight() * 3 / 4 - 5, p);
+            p.setTextAlign(Paint.Align.RIGHT);
+            c.drawText(levelString, getWidth() - 10, getHeight() * 3 / 4 - 5, p);
         }
-        Log.i("Draw", "Invaders");
-
-        c.drawLine(0, getHeight()-getHeight()/4, getWidth(), getHeight()-getHeight()/4, p);
-        Log.i("Draw", "Line");
-
-        c.drawText(scoreString, 10, getHeight()*3/4-5, p);
-        p.setTextAlign(Paint.Align.RIGHT);
-        c.drawText(levelString, getWidth()-10, getHeight()*3/4-5, p);
-
     }
 
     public void update(){
@@ -253,15 +267,16 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     public void loadTouchHandler(){
         setOnTouchListener(new OnTouchListener() {
             int lastAction = -1;
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 //for now, player can only shoot when stopped and multiple bullets can be on screen at a time
-                if (event.getY() < getHeight() * 3 / 4){
+                if (event.getY() < getHeight() * 3 / 4) {
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        for (int x = 0; x< maxNumOfBullet; x++){
-                            if (!bullet[x].isShooting){
+                        for (int x = 0; x < maxNumOfBullet; x++) {
+                            if (!bullet[x].isShooting) {
                                 bullet[x].setShooting(true);
-                                soundPool.play(soundLaser,0.05f,0.05f,0,0,1);
+                                soundPool.play(soundLaser, 0.05f, 0.05f, 0, 0, 1);
                                 break;
                             }
                         }
@@ -273,7 +288,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                         }*/
                     }
                 }
-                switch(event.getActionIndex()) {
+                switch (event.getActionIndex()) {
                     case 0:
                         switch (event.getActionMasked()) {
                             case MotionEvent.ACTION_DOWN:
@@ -305,9 +320,9 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                         }
                         return true;
                     case 1: //for handling two-touch events
-                        switch(event.getActionMasked()) {
+                        switch (event.getActionMasked()) {
                             case MotionEvent.ACTION_POINTER_DOWN:
-                                Log.d("Log.debug", "ACTION_POINTER_DOWN at X= "+Float.toString(event.getX(1)));
+                                Log.d("Log.debug", "ACTION_POINTER_DOWN at X= " + Float.toString(event.getX(1)));
                                 if (event.getY(1) > getHeight() * 3 / 4) {
                                     if (event.getX(1) < getWidth() / 2 && ship.getMovementState() == ship.RIGHT) { //cancel right movement
                                         ship.setMovementState(ship.STOPPED);
@@ -317,7 +332,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                                 }
                                 break;
                             case MotionEvent.ACTION_POINTER_UP:
-                                switch(lastAction){
+                                switch (lastAction) {
                                     case 0:
                                         ship.setMovementState(ship.RIGHT);
                                         break;
@@ -345,4 +360,5 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
     public int getScore(){
         return score;
     }
+
 }

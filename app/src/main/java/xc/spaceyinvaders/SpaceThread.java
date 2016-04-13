@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import android.app.Activity;
 
@@ -30,6 +31,7 @@ public class SpaceThread extends Thread {
         // Main game loop.
         while( !Thread.interrupted() ) {
             switch (gameState) {
+                case OVER:
                 case RUNNING:
                     if (!gameLoaded) {
                         sv.loadGame(); //loading is done in the thread to prevent screen freezing effect
@@ -59,7 +61,7 @@ public class SpaceThread extends Thread {
                 case PAUSED:
                     //not yet implemented
                     break;
-                case OVER:
+                /*case OVER:
                     SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(sv.getContext());
                     SharedPreferences.Editor editor = mPrefs.edit();
                     if (mPrefs.getInt("high", 0) < sv.getScore()) {
@@ -67,7 +69,7 @@ public class SpaceThread extends Thread {
                         editor.apply();
                     }
                     interrupt();
-                    break;
+                    break;*/
             }
 
         }
