@@ -15,6 +15,7 @@ import android.graphics.RectF;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -75,7 +76,14 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
 
     public void loadGame(){
         //Sound handling
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        if (Build.VERSION.SDK_INT < 21) { //deprecated for API level 21+
+            soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        }
+        else{
+            SoundPool.Builder builder = new SoundPool.Builder();
+            builder.setMaxStreams(10);
+            soundPool = builder.build();
+        }
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
@@ -85,6 +93,164 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
         soundLaser = soundPool.load(this.context, R.raw.laser, 1);
         soundBomb = soundPool.load(this.context, R.raw.bomb, 1);
         //touch handling
+        loadTouchHandler();
+
+        //ship creation
+        ship=new Ship(this.context,getWidth(), getHeight());
+        //bullet creation
+        for(int i=0; i<maxNumOfBullet; i++) {
+            bullet[numOfBullet] = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
+            numOfBullet++;
+        }
+        //invader creation
+        createInvaders(1);
+        touchDistanceY = (float)(invaders[0].invadersHight*0.5 + bullet[0].bulletHeight*0.293);
+        touchDistanceX = (float)(invaders[0].invadersWidth*0.293 + bullet[0].bulletWidth*0.293);
+        //ufo creation
+        ufo = new Ufo(this.context, getWidth(), getHeight());
+
+    }
+
+    @Override
+    public void surfaceCreated ( SurfaceHolder holder ) {
+        // Launch animator thread
+        if (!gameLoaded) {
+            st = new SpaceThread(this);
+            st.start();
+            gameLoaded = true;
+        }
+        Log.d("Load", "surfaceView/Thread");
+    }
+
+    @Override
+    public void draw(Canvas c) {
+        super.draw(c);
+        c.drawColor(Color.BLACK);
+        Log.i("Draw", "Background");
+
+        Paint p = new Paint();
+        p.setColor(Color.WHITE);
+        p.setTextSize(getHeight()/25);
+        p.setStyle(Paint.Style.FILL);
+        p.setAntiAlias(true);
+
+        ufo.draw(c);
+        Log.i("Draw", "Ufo");
+        ship.draw(c);
+        Log.i("Draw", "Ship");
+
+        for(int i=0; i<numOfBullet; i++) {
+            bullet[i].draw(c);
+        }
+        Log.i("Draw", "Bullet");
+        for(int i=0; i<numOfInvaders; i++){
+            invaders[i].draw(c);
+        }
+        Log.i("Draw", "Invaders");
+
+        c.drawLine(0, getHeight()-getHeight()/4, getWidth(), getHeight()-getHeight()/4, p);
+        Log.i("Draw", "Line");
+
+        c.drawText(scoreString, 10, getHeight()*3/4-5, p);
+        p.setTextAlign(Paint.Align.RIGHT);
+        c.drawText(levelString, getWidth()-10, getHeight()*3/4-5, p);
+
+    }
+
+    public void update(){
+        ship.update();
+        ufo.update();
+        Log.d("score", ""+scoreString);
+
+        collisionDetection();
+
+        //bullet[] update
+        for(int i=0; i<numOfBullet; i++) {
+            bullet[i].update(ship.getX());
+            //Log.d("DEBUG","bullet[" +i+"].getX()="+bullet[i].getX());
+        }
+        //invaders update
+        for(int i=0; i<numOfInvaders; i++){
+            //Log.d("DEBUG","invaders[" +i+"].getX()="+invaders[i].getX());
+            invaders[i].update();
+            if (invaders[i].isAlive) {
+                if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
+                    bounded = true; //invader is at the bound of screen
+                }
+            }
+        }
+
+        //if one invader touched the bound of screen, all invaders go down and reverse
+        if(bounded){
+            for(int i=0; i<numOfInvaders; i++){
+                invaders[i].goDownAndReverse();
+                //game over when any live invader crosses the line (3/4 down)
+                if (invaders[i].isAlive && (invaders[i].getY() + invaders[i].getHeight() > getHeight()*3/4)) {
+                    Log.d("Status", "Game Over");
+                    st.setGameState(st.OVER);
+                }
+            }
+            bounded = false;
+        }
+    }
+
+    public void collisionDetection(){
+        //if a bullet collides with an invader, invaders[i].isAlive = false
+        outerLoop:
+        for(int j=0; j<numOfBullet; j++){
+            if (bullet[j].isShooting) {
+                for(int i=0; i<numOfInvaders; i++){
+                    if (invaders[i].isAlive) {
+                        float iCenterX = invaders[i].getX() + invaders[i].invadersWidth / 2;
+                        float iCenterY = invaders[i].getY() - invaders[i].invadersHight / 2;
+                        float bCenterX = bullet[j].getX() + bullet[j].bulletWidth / 2;
+                        float bCenterY = bullet[j].getY() - bullet[j].bulletHeight / 2;
+                        if ((Math.abs(iCenterY - bCenterY) <= touchDistanceY) && (Math.abs(iCenterX - bCenterX) <= touchDistanceX)) {
+                            soundPool.play(soundBomb,0.1f,0.1f,1,0,1);
+                            invaders[i].isAlive = false;
+                            bullet[j].isAlive = false;
+                            bullet[j].update(ship.getX()); //to prevent multi-kill with one bullet
+                            score+=level;
+                            if (--numOfInvadersAlive == 0) {
+                                //disable all touch handling while next level is loading
+                                setOnTouchListener(null);
+                                //remove all bullets in the air before loading next level
+                                for (int k = 0; k < numOfBullet; k++){
+                                    if (bullet[k].isShooting){
+                                        bullet[k].setShooting(false);
+                                        bullet[k].resetY();
+                                        bullet[k].update(ship.getX());
+                                    }
+                                }
+                                score+=level*level;
+                                createInvaders(++level);
+                                loadTouchHandler();
+                                //todo consider adding 'start next level' dialog
+                                break outerLoop;
+                            }
+                            scoreString = "Score: "+score;
+                            levelString = "Level: "+(int)level;
+                            Log.d("collisionDetection", "invaders[" + i + "] removed by bullet["+j+"]");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void createInvaders(float level){
+        numOfInvaders = 0;
+        for(int column=1; column<=6; column++){
+            for(int row=1; row<=4; row++ ){
+                invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column, level);
+                numOfInvaders++;
+                numOfInvadersAlive++;
+            }
+        }
+        Log.d("Load", "Level "+(int)level);
+    }
+
+    public void loadTouchHandler(){
         setOnTouchListener(new OnTouchListener() {
             int lastAction = -1;
             @Override
@@ -92,13 +258,19 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 //for now, player can only shoot when stopped and multiple bullets can be on screen at a time
                 if (event.getY() < getHeight() * 3 / 4){
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        soundPool.play(soundLaser,0.05f,0.05f,0,0,1);
-                        bullet[numOfShoot].setShooting(true);
+                        for (int x = 0; x< maxNumOfBullet; x++){
+                            if (!bullet[x].isShooting){
+                                bullet[x].setShooting(true);
+                                soundPool.play(soundLaser,0.05f,0.05f,0,0,1);
+                                break;
+                            }
+                        }
+                        /*bullet[numOfShoot].setShooting(true);
                         if(numOfShoot < maxNumOfBullet-1) {
                             numOfShoot++;
                         }else{
                             numOfShoot = 0;
-                        }
+                        }*/
                     }
                 }
                 switch(event.getActionIndex()) {
@@ -159,154 +331,6 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 return false;
             }
         });
-
-        //ship creation
-        ship=new Ship(this.context,getWidth(), getHeight());
-        //bullet creation
-        for(int i=0; i<maxNumOfBullet; i++) {
-            bullet[numOfBullet] = new Bullet(this.context, getWidth(), getHeight(), ship.getX(), ship.getY());
-            numOfBullet++;
-        }
-        //invader creation
-        createInvaders(1);
-        touchDistanceY = (float)(invaders[0].invadersHight*0.5 + bullet[0].bulletHeight*0.293);
-        touchDistanceX = (float)(invaders[0].invadersWidth*0.293 + bullet[0].bulletWidth*0.293);
-        //ufo creation
-        ufo = new Ufo(this.context, getWidth(), getHeight());
-
-    }
-
-    @Override
-    public void surfaceCreated ( SurfaceHolder holder ) {
-        // Launch animator thread
-        if (!gameLoaded) {
-            st = new SpaceThread(this);
-            st.start();
-            gameLoaded = true;
-        }
-        Log.d("Load", "surfaceView/Thread");
-    }
-
-    @Override
-    public void draw(Canvas c) {
-        super.draw(c);
-        c.drawColor(Color.BLACK);
-        Log.d("Draw", "Background");
-
-        Paint p = new Paint();
-        p.setColor(Color.WHITE);
-        p.setTextSize(getHeight()/25);
-        p.setStyle(Paint.Style.FILL);
-        p.setAntiAlias(true);
-
-        ufo.draw(c);
-        Log.d("Draw", "Ufo");
-        ship.draw(c);
-        Log.d("Draw", "Ship");
-
-        for(int i=0; i<numOfBullet; i++) {
-            bullet[i].draw(c);
-        }
-        Log.d("Draw", "Bullet");
-        for(int i=0; i<numOfInvaders; i++){
-            invaders[i].draw(c);
-        }
-        Log.d("Draw", "Invaders");
-
-        c.drawLine(0, getHeight()-getHeight()/4, getWidth(), getHeight()-getHeight()/4, p);
-        Log.d("Draw", "Line");
-
-        c.drawText(scoreString, 10, getHeight()*3/4-5, p);
-        p.setTextAlign(Paint.Align.RIGHT);
-        c.drawText(levelString, getWidth()-10, getHeight()*3/4-5, p);
-
-    }
-
-    public void update(){
-        ship.update();
-        ufo.update();
-        Log.d("score", ""+scoreString);
-
-        //bullet[] update
-        for(int i=0; i<numOfBullet; i++) {
-            bullet[i].update(ship.getX());
-            //Log.d("DEBUG","bullet[" +i+"].getX()="+bullet[i].getX());
-        }
-        //invaders update
-        for(int i=0; i<numOfInvaders; i++){
-            //Log.d("DEBUG","invaders[" +i+"].getX()="+invaders[i].getX());
-            invaders[i].update();
-            if (invaders[i].isAlive) {
-                if(invaders[i].getX()+invaders[i].getWidth() > getWidth() || invaders[i].getX() < 0){
-                    bounded = true; //invader is at the bound of screen
-                }
-            }
-        }
-
-        collisionDetection();
-
-        //if one invader touched the bound of screen, all invaders go down and reverse
-        if(bounded){
-            for(int i=0; i<numOfInvaders; i++){
-                invaders[i].goDownAndReverse();
-                //game over when any live invader crosses the line (3/4 down)
-                if (invaders[i].isAlive && (invaders[i].getY() + invaders[i].getHeight() > getHeight()*3/4)) {
-                    Log.d("Status", "Game Over");
-                    st.setGameState(st.OVER);
-                }
-            }
-            bounded = false;
-        }
-    }
-
-    public void collisionDetection(){
-        //if a bullet collides with an invader, invaders[i].isAlive = false
-
-        for(int j=0; j<numOfBullet; j++){
-            if (bullet[j].isShooting) {
-                for(int i=0; i<numOfInvaders; i++){
-                    if (invaders[i].isAlive) {
-                        float iCenterX = invaders[i].getX() + invaders[i].invadersWidth / 2;
-                        float iCenterY = invaders[i].getY() - invaders[i].invadersHight / 2;
-                        float bCenterX = bullet[j].getX() + bullet[j].bulletWidth / 2;
-                        float bCenterY = bullet[j].getY() + bullet[j].bulletHeight / 2;
-                        if ((Math.abs(iCenterY - bCenterY) <= touchDistanceY) && (Math.abs(iCenterX - bCenterX) <= touchDistanceX)) {
-                            soundPool.play(soundBomb,0.1f,0.1f,1,0,1);
-                            invaders[i].isAlive = false;
-                            bullet[j].isAlive = false;
-                            bullet[j].update(ship.getX()); //to prevent multi-kill with one bullet
-                            score+=level;
-                            if (--numOfInvadersAlive == 0) {
-                                //remove all bullets in the air before loading next level
-                                for (int k = 0; k < numOfBullet; k++){
-                                    if (bullet[k].isShooting){
-                                        bullet[k].setShooting(false);
-                                    }
-                                }
-
-                                createInvaders(++level);
-                                score+=level*level;
-                            }
-                            scoreString = "Score: "+score;
-                            levelString = "Level: "+(int)level;
-                            Log.d("collisionDetection", "invaders[" + i + "] removed by bullet["+j+"]");
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void createInvaders(float level){
-        numOfInvaders = 0;
-        for(int column=1; column<=6; column++){
-            for(int row=1; row<=4; row++ ){
-                invaders[numOfInvaders] = new Invaders(this.context, getWidth(), getWidth(), row, column, level);
-                numOfInvaders++;
-                numOfInvadersAlive++;
-            }
-        }
-        Log.d("Load", "Level "+(int)level);
     }
 
     @Override

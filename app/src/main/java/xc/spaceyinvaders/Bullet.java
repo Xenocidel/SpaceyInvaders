@@ -74,4 +74,7 @@ public class Bullet {
     
     public float getX(){return x;}
     public float getY(){return y;}
+    public void resetY(){
+        y = yi;
+    }
 }
