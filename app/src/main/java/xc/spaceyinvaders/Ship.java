@@ -51,15 +51,15 @@ public class Ship {
     void update() {
         if(shipMoving == LEFT) {
             x = x - vx;
-            if (x <= margin ) {
-                x = margin;
+            if (x <= 0 ) {
+                x = 0;
             }
         }
 
         if(shipMoving == RIGHT){
             x = x + vx;
-            if (x >= (width-shipWidth-margin)) {
-                x = width - shipWidth-margin;
+            if (x >= (width-shipWidth)) {
+                x = width - shipWidth;
             }
         }
     }

@@ -17,9 +17,12 @@ public class SpaceThread extends Thread {
     SpaceView sv;
     boolean gameLoaded;
     int gameState;
+    final int INIT = -1;
+    final int LOADING = 0;
     final int RUNNING = 1;
     final int PAUSED = 2;
     final int OVER = 3;
+    final int END = 4;
 
     public SpaceThread(SpaceView sv) {
         this.sv=sv;
@@ -27,17 +30,35 @@ public class SpaceThread extends Thread {
     }
     public void run() {
         SurfaceHolder sh = sv.getHolder();
-        gameState = RUNNING;
+        Canvas c;
+        gameState = INIT;
         // Main game loop.
         while( !Thread.interrupted() ) {
             switch (gameState) {
+                case INIT:
+                    c = sh.lockCanvas(null);
+                    sv.draw(c);
+                    sh.unlockCanvasAndPost(c);
+                    sv.loadGame();
+                    gameLoaded = true;
+                    gameState = RUNNING;
+                    break;
+                case LOADING:
+                    c = sh.lockCanvas(null);
+                    sv.draw(c);
+                    sh.unlockCanvasAndPost(c);
+                    sv.createInvaders(sv.getLevel());
+                    break;
                 case OVER:
-                case RUNNING:
-                    if (!gameLoaded) {
-                        sv.loadGame(); //loading is done in the thread to prevent screen freezing effect
-                        gameLoaded = true;
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        // Thread was interrupted while sleeping.
+                        return;
                     }
-                    Canvas c = sh.lockCanvas(null);
+                    //intentional roll over to case RUNNING
+                case RUNNING:
+                    c = sh.lockCanvas(null);
                     try {
                         synchronized (sh) {
                             sv.draw(c);
@@ -61,7 +82,7 @@ public class SpaceThread extends Thread {
                 case PAUSED:
                     //not yet implemented
                     break;
-                /*case OVER:
+                case END:
                     SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(sv.getContext());
                     SharedPreferences.Editor editor = mPrefs.edit();
                     if (mPrefs.getInt("high", 0) < sv.getScore()) {
@@ -69,7 +90,7 @@ public class SpaceThread extends Thread {
                         editor.apply();
                     }
                     interrupt();
-                    break;*/
+                    break;
             }
 
         }

@@ -41,7 +41,7 @@ public class Invaders {
         margin = invadersWidth/4;
         x = column * (invadersWidth + margin);
         y = row * (invadersHight + margin/2);
-        vx = (float)(Math.pow(level/2, 2));
+        vx = (float)(level*1.2);
         shipMoving = RIGHT;
         isAlive = true;
     }
