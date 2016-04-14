@@ -157,6 +157,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 Log.d("Draw", "Loading Frame Complete");
                 st.setGameState(st.RUNNING);
                 loadTouchHandler();
+                scoreString = "Score: "+score;
                 levelString = "Level: "+(int)level;
                 break;
             case 1: //RUNNING
