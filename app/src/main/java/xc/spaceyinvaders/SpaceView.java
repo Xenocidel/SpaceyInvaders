@@ -146,6 +146,7 @@ public class SpaceView extends SurfaceView implements SurfaceHolder. Callback{
                 Log.d("Draw", "Initialization Loading Frame Complete");
                 break;
             case 0: //LOADING
+                setOnTouchListener(null);
                 c.drawColor(Color.BLACK);
                 p.setColor(Color.WHITE);
                 p.setTextSize(getHeight()/10);
